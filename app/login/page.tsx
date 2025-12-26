@@ -121,9 +121,9 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="text-center text-sm font-medium text-destructive">
+                  {error}
+                </div>
               )}
 
               <Button type="submit" className="w-full" disabled={loading}>
