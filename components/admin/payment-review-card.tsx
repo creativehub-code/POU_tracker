@@ -212,9 +212,11 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
                 <div className="flex items-center gap-2">
                   {payment.status === "pending" && (
                     <>
-                      <Button size="sm" className="h-7 text-xs px-2" onClick={() => setReviewDialogOpen(true)}>
-                        Review
-                      </Button>
+                      {payment.screenshotUrl && (
+                        <Button size="sm" className="h-7 text-xs px-2" onClick={() => setReviewDialogOpen(true)}>
+                          Review
+                        </Button>
+                      )}
                       
                       {/* Safe Reject Button */}
                       <div 

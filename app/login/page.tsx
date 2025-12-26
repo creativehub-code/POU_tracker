@@ -37,9 +37,17 @@ export default function LoginPage() {
       await signIn(email, password)
       // No need to manually redirect or set loading false on success
       // The auth listener in useEffect will handle the redirect
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      if (err instanceof Error) {
+      // Check for common Firebase auth errors
+      if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password" ||
+        err.message?.includes("invalid-credential")
+      ) {
+        setError("Invalid username and password")
+      } else if (err instanceof Error) {
         setError(err.message)
       } else {
         setError("An unexpected error occurred")
