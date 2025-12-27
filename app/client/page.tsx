@@ -19,6 +19,9 @@ import {
   XCircle,
   LogOut,
   ImageIcon,
+  Wallet,
+  TrendingUp,
+  AlertCircle,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { PaymentCard } from "@/components/client/payment-card"
@@ -238,16 +241,25 @@ const loadPayments = async () => {
             {/* Mobile View */}
             <div className="space-y-3 md:hidden">
               <div className="flex h-auto flex-col items-start justify-between rounded-lg border bg-card p-4 shadow-sm">
-                <p className="text-sm font-medium text-muted-foreground">Total Paid Amount</p>
+                <div className="flex w-full items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">Total Paid Amount</p>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </div>
                 <p className="text-5xl font-bold text-green-600 mt-2">₹{approvedTotal}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex h-28 flex-col items-start justify-between rounded-lg border bg-card p-3 shadow-sm">
-                  <p className="text-xs font-medium text-muted-foreground">Remaining</p>
+                  <div className="flex w-full items-center justify-between">
+                    <p className="text-xs font-medium text-muted-foreground">Remaining</p>
+                    <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <p className="text-3xl font-bold text-orange-500">₹{remaining}</p>
                 </div>
                 <div className="flex h-28 flex-col items-start justify-between rounded-lg border bg-card p-3 shadow-sm">
-                  <p className="text-xs font-medium text-muted-foreground">Progress</p>
+                  <div className="flex w-full items-center justify-between">
+                    <p className="text-xs font-medium text-muted-foreground">Progress</p>
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <p className="text-3xl font-bold">{progress.toFixed(0)}%</p>
                 </div>
               </div>
