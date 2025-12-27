@@ -196,7 +196,7 @@ const loadPayments = async () => {
                 <h1 className="text-lg font-bold md:text-2xl">{userData?.name},</h1>
               </div>
               <p className="text-xs font-normal text-muted-foreground md:text-sm">
-                {new Date().toLocaleDateString("en-US", { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                {userData?.email}
               </p>
             </div>
           </div>
@@ -209,12 +209,14 @@ const loadPayments = async () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4">
+      <main className="container mx-auto px-4 pt-0 pb-0">
         {/* USER CARD - Kept as is for now, can be removed if 'User Card' implies the top card with progress */}
-        <Card className="mb-4 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5">
-          <CardHeader className="pb-3">
-            <div className="flex flex-col gap-0.5">
-              <p className="text-sm text-muted-foreground">{userData?.email}</p>
+        <Card className="mb-0 -mt-4 border-0 bg-transparent shadow-none md:mt-0 md:border md:bg-card md:shadow-sm">
+          <CardHeader className="p-0">
+            <div className="flex flex-col gap-0.5 items-start text-left ml-8">
+              <p className="text-sm text-muted-foreground">
+                {new Date().toLocaleDateString("en-US", { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+              </p>
               {progress >= 100 ? (
                 <p className="text-xs text-green-600">
                   your progress has completed
@@ -230,8 +232,29 @@ const loadPayments = async () => {
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-3 text-center">
+          <CardContent className="space-y-4 pt-0">
+            {/* Mobile View */}
+            {/* Mobile View */}
+            {/* Mobile View */}
+            <div className="space-y-3 md:hidden">
+              <div className="flex h-auto flex-col items-start justify-between rounded-lg border bg-card p-4 shadow-sm">
+                <p className="text-sm font-medium text-muted-foreground">Total Paid Amount</p>
+                <p className="text-5xl font-bold text-green-600 mt-2">₹{approvedTotal}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex h-28 flex-col items-start justify-between rounded-lg border bg-card p-3 shadow-sm">
+                  <p className="text-xs font-medium text-muted-foreground">Remaining</p>
+                  <p className="text-3xl font-bold text-orange-500">₹{remaining}</p>
+                </div>
+                <div className="flex h-28 flex-col items-start justify-between rounded-lg border bg-card p-3 shadow-sm">
+                  <p className="text-xs font-medium text-muted-foreground">Progress</p>
+                  <p className="text-3xl font-bold">{progress.toFixed(0)}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop View */}
+            <div className="hidden md:grid grid-cols-3 gap-3 text-center">
               <div className="rounded-lg bg-card p-3">
                 <p className="text-xl font-bold text-green-600">₹{approvedTotal}</p>
                 <p className="text-xs text-muted-foreground">Approved</p>
