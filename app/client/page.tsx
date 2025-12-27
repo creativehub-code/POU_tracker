@@ -285,8 +285,21 @@ const loadPayments = async () => {
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-center gap-36 mb-6">
-          <h2 className="text-base font-bold">Payment Request</h2>
+        <div className="flex items-center justify-center gap-38 mb-6">
+          <h2 
+            className={`text-base font-bold transition-colors ${
+              progress >= 100 || isQuotaExceeded 
+                ? "cursor-default text-muted-foreground" 
+                : "cursor-pointer hover:text-primary"
+            }`}
+            onClick={() => {
+              if (progress < 100 && !isQuotaExceeded) {
+                setRequestDialogOpen(true)
+              }
+            }}
+          >
+            Payment Request
+          </h2>
           <Button 
             className="h-6 w-16 p-0" 
             onClick={() => setRequestDialogOpen(true)}
@@ -305,7 +318,7 @@ const loadPayments = async () => {
         {/* STATUS */}
         <div className="my-4 grid grid-cols-3 gap-2">
           <Card 
-            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'pending' ? 'border-orange-500 ring-1 ring-orange-500' : ''}`}
+            className={`cursor-pointer transition-all ${filter === 'pending' ? 'border-orange-500 ring-1 ring-orange-500' : ''}`}
             onClick={() => setFilter(filter === 'pending' ? 'all' : 'pending')}
           >
             <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
@@ -317,7 +330,7 @@ const loadPayments = async () => {
             </CardContent>
           </Card>
           <Card 
-            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'approved' ? 'border-green-600 ring-1 ring-green-600' : ''}`}
+            className={`cursor-pointer transition-all ${filter === 'approved' ? 'border-green-600 ring-1 ring-green-600' : ''}`}
             onClick={() => setFilter(filter === 'approved' ? 'all' : 'approved')}
           >
             <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
@@ -329,7 +342,7 @@ const loadPayments = async () => {
             </CardContent>
           </Card>
           <Card
-            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'rejected' ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+            className={`cursor-pointer transition-all ${filter === 'rejected' ? 'border-red-500 ring-1 ring-red-500' : ''}`}
             onClick={() => setFilter(filter === 'rejected' ? 'all' : 'rejected')}
           >
             <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
