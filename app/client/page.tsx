@@ -216,7 +216,7 @@ const loadPayments = async () => {
         {/* USER CARD - Kept as is for now, can be removed if 'User Card' implies the top card with progress */}
         <Card className="mb-0 -mt-4 border-0 bg-transparent shadow-none md:mt-0 md:border md:bg-card md:shadow-sm">
           <CardHeader className="p-0">
-            <div className="flex flex-col gap-0.5 items-start text-left ml-8">
+            <div className="flex flex-col gap-0.5 items-start text-left ml-2">
               <p className="text-sm text-muted-foreground">
                 {new Date().toLocaleDateString("en-US", { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
               </p>
@@ -239,13 +239,14 @@ const loadPayments = async () => {
             {/* Mobile View */}
             {/* Mobile View */}
             {/* Mobile View */}
-            <div className="space-y-3 md:hidden">
-              <div className="flex h-auto flex-col items-start justify-between rounded-lg border bg-card p-4 shadow-sm">
+            <div
+             className="space-y-3 md:hidden -mt-2 -mx-6">
+              <div className="flex h-30 flex-col items-start justify-between rounded-lg border bg-card p-4 shadow-sm">
                 <div className="flex w-full items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Total Paid Amount</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Paid Amount</p>
                   <Wallet className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <p className="text-5xl font-bold text-green-600 mt-2">₹{approvedTotal}</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">₹{approvedTotal}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex h-28 flex-col items-start justify-between rounded-lg border bg-card p-3 shadow-sm">
@@ -284,14 +285,15 @@ const loadPayments = async () => {
           </CardContent>
         </Card>
 
-        <div className="space-y-2">
+        <div className="flex items-center justify-center gap-36 mb-6">
+          <h2 className="text-base font-bold">Payment Request</h2>
           <Button 
-            className="w-full" 
+            className="h-6 w-16 p-0" 
             onClick={() => setRequestDialogOpen(true)}
             disabled={progress >= 100 || isQuotaExceeded}
           >
-            <Send className="mr-2 h-4 w-4" />
-            Make Request
+            <Send className="h-4 w-4" />
+            <span className="sr-only">Make Request</span>
           </Button>
           {isQuotaExceeded && (
             <p className="text-center text-xs text-red-500">
@@ -302,22 +304,40 @@ const loadPayments = async () => {
 
         {/* STATUS */}
         <div className="my-4 grid grid-cols-3 gap-2">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center p-2 text-center md:p-4">
-              <span className="text-xl font-bold text-orange-500 md:text-2xl">{pendingCount}</span>
-              <p className="text-xs text-gray-400">Pending</p>
+          <Card 
+            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'pending' ? 'border-orange-500 ring-1 ring-orange-500' : ''}`}
+            onClick={() => setFilter(filter === 'pending' ? 'all' : 'pending')}
+          >
+            <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
+              <div className="flex w-full items-center justify-between gap-1 -mt-3">
+                <p className="text-xs font-medium text-muted-foreground">Pending</p>
+                <Clock className="h-3 w-3 text-orange-500" />
+              </div>
+              <span className="text-xl font-bold text-orange-500 mt-5 -mb-3">{pendingCount}</span>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center p-2 text-center md:p-4">
-              <span className="text-xl font-bold text-green-600 md:text-2xl">{approvedCount}</span>
-              <p className="text-xs text-gray-400">Approved</p>
+          <Card 
+            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'approved' ? 'border-green-600 ring-1 ring-green-600' : ''}`}
+            onClick={() => setFilter(filter === 'approved' ? 'all' : 'approved')}
+          >
+            <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
+              <div className="flex w-full items-center justify-between gap-1 -mt-3">
+                <p className="text-xs font-medium text-muted-foreground">Approved</p>
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              </div>
+              <span className="text-xl font-bold text-green-600 mt-5 -mb-3">{approvedCount}</span>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center p-2 text-center md:p-4">
-              <span className="text-xl font-bold text-red-500 md:text-2xl">{rejectedCount}</span>
-              <p className="text-xs text-gray-400">Rejected</p>
+          <Card
+            className={`cursor-pointer transition-all hover:bg-accent/50 ${filter === 'rejected' ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+            onClick={() => setFilter(filter === 'rejected' ? 'all' : 'rejected')}
+          >
+            <CardContent className="flex flex-col items-start pt-0 px-3 pb-0 md:p-4">
+              <div className="flex w-full items-center justify-between gap-1 -mt-3">
+                <p className="text-xs font-medium text-muted-foreground">Rejected</p>
+                <XCircle className="h-3 w-3 text-red-500" />
+              </div>
+              <span className="text-xl font-bold text-red-500 mt-5 -mb-3">{rejectedCount}</span>
             </CardContent>
           </Card>
         </div>
