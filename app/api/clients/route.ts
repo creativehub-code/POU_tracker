@@ -52,7 +52,21 @@ export async function DELETE(req: Request) {
       console.warn('Auth deletion failed (user may not exist):', authError.message);
     }
 
-    // 2. Delete user document from Firestore
+    // 2. Unassign clients associated with this subadmin (if any)
+    const assignedClientsSnapshot = await adminDb
+      .collection('users')
+      .where('assignedSubAdminId', '==', clientId)
+      .get();
+
+    if (!assignedClientsSnapshot.empty) {
+      const unassignBatch = adminDb.batch();
+      assignedClientsSnapshot.docs.forEach((doc) => {
+        unassignBatch.update(doc.ref, { assignedSubAdminId: null });
+      });
+      await unassignBatch.commit();
+    }
+
+    // 3. Delete user document from Firestore
     await adminDb.collection('users').doc(clientId).delete();
 
     // 3. Delete all associated payments
