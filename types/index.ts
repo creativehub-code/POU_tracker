@@ -1,25 +1,33 @@
-export type PaymentStatus = "pending" | "approved" | "rejected"
+export type PaymentStatus = "pending" | "approved" | "rejected" | "scheduled"
 
 export interface Payment {
   id: string
   clientId: string
+  clientName?: string
+  subAdminId?: string
+  requestedBy?: string // UID of SubAdmin who requested
+  requestedAt?: any // Timestamp
   amount: number
   status: PaymentStatus
-  screenshotUrl?: string
-  uploadedAt: any // items from Firestore often have Timestamp
+  screenshotUrl?: string // Legacy or optional if client uploads
+  uploadedAt: any // Legacy timestamp
   description?: string
+  reason?: string // Replaces description or alias
   month?: string // e.g., "December 2024"
   notes?: string // Admin rejection notes
+  reviewedBy?: string // UID of Admin who reviewed
+  scheduledFor?: { month: string, year: string } // For scheduled/prepaid payments
 }
 
 export interface Client {
   id: string
   name: string
   email: string
-  role: "admin" | "client"
+  role: "admin" | "subadmin" | "client"
+  assignedSubAdminId?: string
   targetAmount: number
   fixedAmount: number
-  isDemo?: boolean
+  terminated?: boolean
   initialPassword?: string // Stored for admin reference only
   payments: Payment[]
 }

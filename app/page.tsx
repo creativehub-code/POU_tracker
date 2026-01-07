@@ -18,6 +18,8 @@ export default function HomePage() {
 
     if (userData?.role === "admin") {
       router.replace("/admin");
+    } else if (userData?.role === "subadmin") {
+      router.replace("/subadmin/dashboard");
     } else {
       router.replace("/client");
     }

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { CheckCircle, Clock, XCircle, Eye, IndianRupee } from "lucide-react"
+import { CheckCircle, Clock, XCircle, Eye, IndianRupee, Calendar } from "lucide-react"
 import { format } from "date-fns"
 import type { Payment } from "@/types"
 
@@ -34,6 +34,12 @@ export function PaymentCard({ payment }: PaymentCardProps) {
       color: "text-red-600",
       bg: "bg-red-50 dark:bg-red-950/20",
       badge: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    },
+    scheduled: {
+      icon: Calendar,
+      color: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+      badge: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
     },
   } as const
 
@@ -130,7 +136,7 @@ export function PaymentCard({ payment }: PaymentCardProps) {
                  </Badge>
                </div>
 
-               {payment.status === "rejected" && payment.notes && (
+                {payment.status === "rejected" && payment.notes && (
                  <div className="rounded-md bg-red-50 p-3 dark:bg-red-950/20">
                     <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Rejection Reason</h3>
                     <p className="text-sm text-red-600 dark:text-red-300">{payment.notes}</p>

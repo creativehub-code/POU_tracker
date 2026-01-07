@@ -12,17 +12,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
-import { CheckCircle, XCircle, Clock, Eye, Loader2, IndianRupee, Wand2 } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { CheckCircle, XCircle, Clock, Eye, Loader2, IndianRupee, Wand2, User, FileText, Calendar } from "lucide-react"
 import { format } from "date-fns"
 
 interface PaymentReviewCardProps {
   payment: Payment
   clientId: string
   clientName?: string
+  requestedByName?: string
+  reviewedByName?: string
   onUpdate: () => void
+  hideActions?: boolean
 }
 
-export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: PaymentReviewCardProps) {
+export function PaymentReviewCard({ payment, clientId, clientName, requestedByName, reviewedByName, onUpdate, hideActions }: PaymentReviewCardProps) {
+  const { userData } = useAuth()
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
   const [quickRejectOpen, setQuickRejectOpen] = useState(false)
@@ -52,6 +57,12 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
       color: "text-red-600",
       bg: "bg-red-50 dark:bg-red-950/20",
       badge: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    },
+    scheduled: {
+      icon: Calendar,
+      color: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+      badge: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
     },
   }
 
@@ -109,6 +120,7 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
         status: "approved",
         amount: Number.parseFloat(amount),
         reviewedAt: new Date(),
+        reviewedBy: userData?.id
       })
 
       toast({
@@ -146,6 +158,7 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
         status: "rejected",
         notes: rejectionReason,
         reviewedAt: new Date(),
+        reviewedBy: userData?.id
       })
 
       toast({
@@ -171,7 +184,7 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
   return (
     <>
       <Card className={`${config.bg} overflow-hidden shadow-sm hover:shadow-md transition-shadow`}>
-        <CardContent className="p-2">
+        <CardContent className="p-1 px-1.5 py-1">
           <div className="flex items-start gap-2">
             <div className={`mt-0.5 rounded-full p-1 ${config.bg} shrink-0`}>
               <Icon className={`h-3 w-3 ${config.color}`} />
@@ -197,20 +210,38 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
               </div>
 
               {/* Bottom Row: Date/Notes and Actions */}
-              <div className="flex items-end justify-between gap-2 mt-1">
-                <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-                  <span className="truncate">
-                      {payment.uploadedAt instanceof Date
-                        ? format(payment.uploadedAt, "MMM dd • h:mm a")
-                        : "Just now"}
-                  </span>
+              <div className="flex items-end justify-between gap-1 mt-0">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground w-full">
+                      <span className="truncate shrink-0">
+                          {payment.status === 'scheduled' && payment.month 
+                            ? payment.month 
+                            : (payment.uploadedAt instanceof Date
+                                ? format(payment.uploadedAt, "MMM dd • h:mm a")
+                                : "Just now")}
+                      </span>
+                      {requestedByName && (
+                          <>
+                           <span className="text-muted-foreground/50">•</span>
+                           <span className="text-muted-foreground truncate max-w-[80px] sm:max-w-none">Req: {requestedByName}</span>
+                          </>
+                      )}
+                      {reviewedByName && payment.status !== "pending" && (
+                          <>
+                           <span className="text-muted-foreground/50">•</span>
+                           <span className="text-muted-foreground truncate max-w-[80px] sm:max-w-none">Rev: {reviewedByName}</span>
+                          </>
+                      )} 
+                  </div>
                   {payment.status === "rejected" && payment.notes && (
-                    <span className="text-red-600 line-clamp-1">Note: {payment.notes}</span>
+                    <span className="text-red-600 line-clamp-1 text-[10px] mt-1">Note: {payment.notes}</span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {payment.status === "pending" && (
+                <div className="flex items-center gap-1">
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setImageDialogOpen(true)}>
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  {!hideActions && payment.status === "pending" && (
                     <>
                       {payment.screenshotUrl && (
                         <Button size="sm" className="h-7 text-xs px-2" onClick={() => setReviewDialogOpen(true)}>
@@ -257,31 +288,36 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
                 </div>
               </div>
             </div>
-          </div>
         </CardContent>
       </Card>
 
       {/* Image/Details Dialog */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Payment Details</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-6 md:grid-cols-2">
-             <div className="relative aspect-[9/16] max-h-[70vh] overflow-hidden rounded-lg bg-muted">
-              <img
-                src={payment.screenshotUrl || "/placeholder.svg"}
-                alt="Payment screenshot"
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <div className="space-y-4">
+          <div className="space-y-4">
                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Amount</h3>
+                  <Label className="text-xs text-muted-foreground">Client Name</Label>
+                  <p className="text-base font-semibold">{clientName}</p>
+               </div>
+
+               <div>
+                  <Label className="text-xs text-muted-foreground">Amount</Label>
                   <p className="text-2xl font-bold flex items-center">
                     <IndianRupee className="h-5 w-5 mr-1" />
                     {payment.amount.toLocaleString("en-IN")}
                   </p>
+               </div>
+
+               <div>
+                 <Label className="text-xs text-muted-foreground">Date & Time</Label>
+                 <p className="text-sm font-medium">
+                   {payment.uploadedAt instanceof Date 
+                     ? format(payment.uploadedAt, "PPP p") 
+                     : "N/A"}
+                 </p>
                </div>
                
                {payment.month && (
@@ -298,6 +334,23 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
                  </div>
                )}
 
+
+
+               <div className="grid grid-cols-2 gap-4">
+                  {requestedByName && (
+                    <div>
+                        <Label className="text-xs text-muted-foreground">Requested By</Label>
+                         <p className="text-sm font-medium flex items-center gap-1"><User className="h-3 w-3"/> {requestedByName}</p>
+                    </div>
+                  )}
+                  {reviewedByName && (
+                    <div>
+                        <Label className="text-xs text-muted-foreground">Reviewed By</Label>
+                         <p className="text-sm font-medium flex items-center gap-1"><CheckCircle className="h-3 w-3"/> {reviewedByName}</p>
+                    </div>
+                  )}
+               </div>
+
                <div>
                  <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
                  <Badge variant="outline" className={`${config.badge} mt-1`}>
@@ -305,14 +358,16 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
                  </Badge>
                </div>
 
-               {payment.status === "rejected" && payment.notes && (
-                 <div className="rounded-md bg-red-50 p-3 dark:bg-red-950/20">
-                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Rejection Reason</h3>
-                    <p className="text-sm text-red-600 dark:text-red-300">{payment.notes}</p>
+
+ 
+               {payment.notes && (
+                 <div className="rounded-md bg-muted p-2">
+                    <Label className="text-xs text-muted-foreground">Note</Label>
+                    <p className="text-sm">{payment.notes}</p>
                  </div>
                )}
             </div>
-          </div>
+
         </DialogContent>
       </Dialog>
 
@@ -372,6 +427,18 @@ export function PaymentReviewCard({ payment, clientId, clientName, onUpdate }: P
                    <div className="col-span-2 space-y-1">
                       <Label className="text-muted-foreground">Description</Label>
                       <p className="font-medium bg-muted p-2 rounded-md text-sm">{payment.description}</p>
+                   </div>
+                 )}
+                 {requestedByName && (
+                   <div className="space-y-1">
+                      <Label className="text-muted-foreground">Requested By</Label>
+                      <p className="font-medium flex items-center gap-1"><User className="h-3 w-3"/> {requestedByName}</p>
+                   </div>
+                 )}
+                 {reviewedByName && (
+                   <div className="space-y-1">
+                      <Label className="text-muted-foreground">Reviewed By</Label>
+                      <p className="font-medium flex items-center gap-1"><CheckCircle className="h-3 w-3"/> {reviewedByName}</p>
                    </div>
                  )}
               </div>

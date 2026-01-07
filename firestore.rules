@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isSubAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'subadmin';
+    }
+    
+    function isClient() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'client';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Admin: Full access
+      allow read, write: if isAdmin();
+      
+      // Allow any auth user to read Admin/SubAdmin profiles (REMOVED for security)
+      // allow read: if isAuthenticated() && (resource.data.role == 'admin' || resource.data.role == 'subadmin');
+      
+      // Allow Admin/SubAdmin to read each other (if needed) or just rely on specific rules.
+      // For now, removing broad access. Admin has full access via line 32.
+      // If SubAdmins need to list other SubAdmins, we can add that specially, but currently they don't seem to.
+
+      
+      // SubAdmin: Can read assigned clients
+      allow read: if isSubAdmin() && resource.data.assignedSubAdminId == request.auth.uid;
+      
+      // Client: Can read own profile
+      allow read: if isOwner(userId);
+      
+      // Prevent role escalation (if creating/updating own profile was allowed, which it isn't here, but good practice)
+      // allow write: if false; // Only Admin creates users
+    }
+
+    // Payments Collection
+    match /payments/{paymentId} {
+      // Admin: Full access
+      allow read, write: if isAdmin();
+      
+      // SubAdmin: 
+      // - Read: If payment belongs to an assigned client
+      // - Create: If payment is for an assigned client
+      allow read: if isSubAdmin() && 
+        (get(/databases/$(database)/documents/users/$(resource.data.clientId)).data.assignedSubAdminId == request.auth.uid || 
+         resource.data.requestedBy == request.auth.uid);
+      
+      // Create logic needs to verify the clientId being set is assigned to this SubAdmin
+      allow create: if isSubAdmin() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.terminated != true &&
+        (request.resource.data.subAdminId == request.auth.uid || request.resource.data.requestedBy == request.auth.uid) &&
+        get(/databases/$(database)/documents/users/$(request.resource.data.clientId)).data.assignedSubAdminId == request.auth.uid &&
+        (request.resource.data.status == 'pending' || request.resource.data.status == 'scheduled');
+
+      // Client: Read own payments
+      allow read: if isClient() && resource.data.clientId == request.auth.uid;
+    }
+  }
+}

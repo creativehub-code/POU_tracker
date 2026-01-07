@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useMemo } from "react"
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut as fbSignOut } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { auth } from "@/lib/firebase"
@@ -10,10 +10,14 @@ type UserData = {
   id: string
   name: string
   email: string
-  role: "admin" | "client"
+  role: "admin" | "subadmin" | "client"
+  assignedSubAdminId?: string // Only for clients
+  createdBy?: string
+  createdAt?: any
+  // Legacy or optional fields
   targetAmount?: number
   fixedAmount?: number
-  isDemo?: boolean
+  terminated?: boolean
 }
 
 type AuthContextType = {
@@ -67,8 +71,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserData(null)
   }
 
+  const value = useMemo(() => ({
+    user,
+    userData,
+    loading,
+    signIn,
+    signOut
+  }), [user, userData, loading])
+
   return (
-    <AuthContext.Provider value={{ user, userData, loading, signIn, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

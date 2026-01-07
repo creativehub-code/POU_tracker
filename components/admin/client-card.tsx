@@ -23,11 +23,12 @@ import { ClientDetailsDialog } from "./client-details-dialog"
 
 interface ClientCardProps {
   client: Client
+  subAdminName?: string
   onDelete: (id: string) => Promise<void>
   onUpdate: () => void
 }
 
-export function ClientCard({ client, onDelete, onUpdate }: ClientCardProps) {
+export function ClientCard({ client, subAdminName, onDelete, onUpdate }: ClientCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -84,13 +85,11 @@ export function ClientCard({ client, onDelete, onUpdate }: ClientCardProps) {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">{client.email}</p>
+              {subAdminName && (
+                <p className="text-xs text-blue-600 mt-1 font-medium">Assigned to: {subAdminName}</p>
+              )}
             </div>
           </div>
-          {client.isDemo && (
-              <Badge variant="secondary" className="mt-1 text-xs w-fit">
-                Demo
-              </Badge>
-            )}
         </CardHeader>
         {isExpanded && (
         <CardContent className="space-y-4 pt-0">
