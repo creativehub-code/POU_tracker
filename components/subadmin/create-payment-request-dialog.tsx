@@ -120,7 +120,12 @@ export function CreatePaymentRequestDialog({ isOpen, onClose, onSuccess }: Creat
   }
 
   const handleSubmit = async () => {
-    if (!selectedClientId) {
+    if (!user || !user.uid) {
+      toast({ title: "Error", description: "You must be logged in to create a request.", variant: "destructive" })
+      return
+  }
+  
+  if (!selectedClientId) {
         toast({ title: "Validation Error", description: "Please select a client.", variant: "destructive" })
         return
     }
@@ -152,9 +157,9 @@ export function CreatePaymentRequestDialog({ isOpen, onClose, onSuccess }: Creat
                     status: "scheduled", // NEW STATUS
                     type: "request", 
                     tag: "prepaid",
-                    requestedBy: user?.uid,
-                    subAdminId: user?.uid, // Added for rule compliance and data consistency
-                    requestedByName: userData?.name || user?.displayName || user?.email || "SubAdmin",
+                    requestedBy: user.uid,
+                  subAdminId: user.uid, // Added for rule compliance and data consistency
+                  requestedByName: userData?.name || user.displayName || user.email || "SubAdmin",
                     uploadedAt: serverTimestamp(), 
                     requestedAt: serverTimestamp(),
                     screenshotUrl: "", 
@@ -171,17 +176,17 @@ export function CreatePaymentRequestDialog({ isOpen, onClose, onSuccess }: Creat
                 status: "pending",
                 type: "request", 
                 tag: "regular",
-                requestedBy: user?.uid,
-                subAdminId: user?.uid, // Added for rule compliance
-                requestedByName: userData?.name || user?.displayName || user?.email || "SubAdmin",
+                requestedBy: user.uid,
+              subAdminId: user.uid, // Added for rule compliance
+              requestedByName: userData?.name || user.displayName || user.email || "SubAdmin",
                 uploadedAt: serverTimestamp(), 
                 requestedAt: serverTimestamp(),
                 screenshotUrl: "", 
                 month: `${month} ${year}`
             })
         }
-
-        await Promise.all(requestsToCreate.map(req => addDoc(collection(db, "payments"), req)))
+      
+      await Promise.all(requestsToCreate.map(req => addDoc(collection(db, "payments"), req)))
 
         toast({
             title: "Request(s) Created",
