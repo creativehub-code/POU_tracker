@@ -29,6 +29,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { PaymentCard } from "@/components/client/payment-card"
 import { ModeToggle } from "@/components/mode-toggle"
+import { useSwipe } from "@/hooks/use-swipe"
 
 type Payment = {
   id: string
@@ -67,6 +68,25 @@ export default function ClientDashboard() {
   
   // Filter state
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "scheduled">("all")
+
+  // Swipe Logic
+  const tabs = ["home", "history", "settings"] as const
+
+  const handleSwipeLeft = () => {
+    const currentIndex = tabs.indexOf(activeTab)
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1])
+    }
+  }
+
+  const handleSwipeRight = () => {
+    const currentIndex = tabs.indexOf(activeTab)
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1])
+    }
+  }
+
+  const swipeHandlers = useSwipe({ onSwipedLeft: handleSwipeLeft, onSwipedRight: handleSwipeRight })
 
   /* ------------------ AUTH GUARD ------------------ */
   useEffect(() => {
@@ -215,7 +235,10 @@ const loadPayments = async () => {
 
  
       {/* Mobile Tab Content */}
-      <main className="md:hidden container mx-auto px-4 py-4 pb-24"> 
+      <main 
+        className="md:hidden container mx-auto px-4 py-4 pb-24 min-h-screen"
+        {...swipeHandlers}
+      > 
         {activeTab === 'home' && (
           <div className="space-y-6">
 

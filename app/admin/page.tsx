@@ -37,12 +37,15 @@ import { CreateSubAdminDialog } from "@/components/admin/create-subadmin-dialog"
 import { SubAdminDetailsDialog } from "@/components/admin/subadmin-details-dialog"
 import { AssignClientToSubAdminDialog } from "@/components/admin/assign-client-dialog"
 import { AllTransactionsDialog } from "@/components/admin/all-transactions-dialog"
+import { useSwipe } from "@/hooks/use-swipe" 
+import { useToast } from "@/hooks/use-toast"
 
 type FilterType = "all" | "pending" | "approved" | "rejected"
 
 export default function AdminDashboard() {
   const { userData, loading: authLoading, signOut } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   // const [addClientOpen, setAddClientOpen] = useState(false) // Removed unused state
@@ -60,6 +63,25 @@ export default function AdminDashboard() {
   const [allTransactionsOpen, setAllTransactionsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"home" | "subadmins" | "clients" | "unpaid" | "settings">("home")
   const [clientToUnassign, setClientToUnassign] = useState<string | null>(null)
+
+  // Swipe Logic
+  const tabs = ["home", "subadmins", "clients", "unpaid", "settings"] as const
+
+  const handleSwipeLeft = () => {
+    const currentIndex = tabs.indexOf(activeTab as any)
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1])
+    }
+  }
+
+  const handleSwipeRight = () => {
+    const currentIndex = tabs.indexOf(activeTab as any)
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1])
+    }
+  }
+
+  const swipeHandlers = useSwipe({ onSwipedLeft: handleSwipeLeft, onSwipedRight: handleSwipeRight })
 
   useEffect(() => {
     if (!authLoading) {
@@ -739,7 +761,10 @@ export default function AdminDashboard() {
       </main>
       
       {/* Mobile Main */}
-      <main className="block md:hidden pb-20 px-4 py-4">
+      <main 
+        className="block md:hidden pb-20 px-4 py-4 min-h-screen"
+        {...swipeHandlers}
+      >
           {activeTab === 'home' && (
               <div className="space-y-6">
                    <div className="grid grid-cols-2 gap-4">

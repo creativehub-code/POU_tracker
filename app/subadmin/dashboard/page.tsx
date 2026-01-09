@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Plus, ChevronDown, ChevronUp } from "lucide-react"
 import type { Payment, Client } from "@/types"
+import { useSwipe } from "@/hooks/use-swipe"
 
 export default function SubAdminDashboard() {
     const { user, userData, loading: authLoading, signOut } = useAuth()
@@ -42,6 +43,25 @@ export default function SubAdminDashboard() {
     
     // Filters
     const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "scheduled">("all")
+
+    // Swipe Logic
+    const tabs = ["home", "clients", "unpaid", "scheduled", "settings"] as const
+    
+    const handleSwipeLeft = () => {
+      const currentIndex = tabs.indexOf(activeTab as any)
+      if (currentIndex < tabs.length - 1) {
+        setActiveTab(tabs[currentIndex + 1])
+      }
+    }
+  
+    const handleSwipeRight = () => {
+      const currentIndex = tabs.indexOf(activeTab as any)
+      if (currentIndex > 0) {
+        setActiveTab(tabs[currentIndex - 1])
+      }
+    }
+  
+    const swipeHandlers = useSwipe({ onSwipedLeft: handleSwipeLeft, onSwipedRight: handleSwipeRight })
 
   useEffect(() => {
     if (!authLoading) {
@@ -382,7 +402,10 @@ export default function SubAdminDashboard() {
       </main>
 
       {/* Mobile View */}
-      <main className="block md:hidden pb-20 px-4 py-6">
+      <main 
+        className="block md:hidden pb-20 px-4 py-6 min-h-screen"
+        {...swipeHandlers}
+      >
         {activeTab === "home" && (
             <div className="space-y-4">
                 <h2 className="text-xl font-bold">Assalamu alikum</h2>
